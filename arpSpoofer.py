@@ -3,6 +3,7 @@ import time
 import argparse
 
 # echo 1> /proc/sys/net/ipv4/ip_forward ==> to enable ip forwarding
+# HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters (IPEnableRouter = 1)
 
 parser = argparse.ArgumentParser(description='- ARP Spoofer.', usage='python ARP_Spoofer.py -t <Target> -g <Gateway>')
 parser.add_argument('-t', '--target', required=True, metavar='', help='Specify a target')
